@@ -28,6 +28,7 @@ import com.yp.fastpayment.dao.ShopConfigDao;
 import com.yp.fastpayment.model.OrderInfo;
 import com.yp.fastpayment.model.ShopConfig;
 import com.yp.fastpayment.util.GsonUtil;
+import com.yp.fastpayment.util.Jc_Utils;
 import com.yp.fastpayment.util.SharedPreferenceUtil;
 
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class LoginActivity extends BaseActivity {
     TextView tv_ip;
 
     final static int COUNTS = 5;// 点击次数
-    final static long DURATION = 3*1000;// 规定有效时间
+    final static long DURATION = 3 * 1000;// 规定有效时间
     long[] mHits = new long[COUNTS];
 
     @Override
@@ -94,11 +95,14 @@ public class LoginActivity extends BaseActivity {
 
         checkBluetoothPermission();
 
-        WifiManager wifiManager=(WifiManager) getApplication().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wifiInfo=wifiManager.getConnectionInfo();
-        String mac=wifiInfo.getMacAddress();
+        WifiManager wifiManager = (WifiManager) getApplication().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        String mac = wifiInfo.getMacAddress();
 
-        deviceId = mac;
+//        deviceId = mac;
+//        System.out.println("mac1:"+mac);
+        deviceId = Jc_Utils.getMacFromHardware(this);
+        System.out.println("mac2:" + deviceId);
     }
 
     private void continuousClick(int COUNTS, long DURATION) {
@@ -109,7 +113,7 @@ public class LoginActivity extends BaseActivity {
         if (mHits[0] >= (SystemClock.uptimeMillis() - DURATION)) {
             mHits = new long[COUNTS];//重新初始化数组
 //            连续点击了5下
-            Intent intent = new Intent(LoginActivity.this,IpSetActivity.class);
+            Intent intent = new Intent(LoginActivity.this, IpSetActivity.class);
             startActivity(intent);
         }
     }
@@ -127,9 +131,7 @@ public class LoginActivity extends BaseActivity {
     };
 
 
-
     void loginAdmin() {
-
 
 
         String user_account = edit_user_account.getText().toString().trim();
@@ -195,13 +197,13 @@ public class LoginActivity extends BaseActivity {
 
                             Constants.branchVOList.add(branchVO);
 
-                            startActivity(new Intent(mContext,SelectShopActivity.class));
+                            startActivity(new Intent(mContext, SelectShopActivity.class));
                             Log.d(TAG, "branchVOList.size() == 1");
-                        }else {
+                        } else {
                             Constants.branchVOList = branchVOList;
-                            startActivity(new Intent(mContext,SelectShopActivity.class));
+                            startActivity(new Intent(mContext, SelectShopActivity.class));
                         }
-                    }else {
+                    } else {
                         Constants.branchId = loginResponse.getData().getBranchId();
                         Constants.branchName = loginResponse.getData().getShopName();
                         Constants.branchVOList = new ArrayList<>();
@@ -210,13 +212,13 @@ public class LoginActivity extends BaseActivity {
                         branchVO.setBranchName(Constants.branchName);
 
                         Constants.branchVOList.add(branchVO);
-                        startActivity(new Intent(mContext,SelectShopActivity.class));
+                        startActivity(new Intent(mContext, SelectShopActivity.class));
                         Log.d(TAG, "branchVOList.size() === 1");
                     }
 
                     ShopConfig shopConfig = shopConfigDao.query();
                     Log.d(TAG, "shopConfigDao query==" + GsonUtil.GsonString(shopConfig));
-                }else {
+                } else {
                     showToast(loginResponse.getMessage());
                 }
             }
@@ -234,8 +236,7 @@ public class LoginActivity extends BaseActivity {
     }
 
 
-
-    private void toOrderListPage(){
+    private void toOrderListPage() {
 
         final OrderListRequest request = new OrderListRequest();
         request.setBranchId(Constants.branchId);
@@ -284,7 +285,6 @@ public class LoginActivity extends BaseActivity {
 
 
     }
-
 
 
     private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_PHONE_STATE,
