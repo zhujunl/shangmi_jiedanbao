@@ -1,0 +1,188 @@
+package com.yp.fastpayment.dao;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.util.Log;
+
+import com.yp.fastpayment.R;
+import com.yp.fastpayment.api.response.MeshOrderItemVO;
+import com.yp.fastpayment.api.response.OrderVO;
+import com.yp.fastpayment.model.OrderInfo;
+import com.yp.fastpayment.model.ShopConfig;
+import com.yp.fastpayment.util.DBHelper;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+
+public class OrderInfoDao {
+
+    private DBHelper mHelper;
+    private SQLiteDatabase mDatabase;
+
+    public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    public OrderInfoDao(Context context) {
+        mHelper = new DBHelper(context);
+        mDatabase = mHelper.getWritableDatabase();
+    }
+
+    /**
+     * // 建表 订单表
+     *         String orderInfoSql = "create table mesh_order" +
+     *                 "(id integer primary key autoincrement, " +
+     *                 "shopId integer, " +
+     *                 "customerId integer, " +
+     *                 "branchId integer, " +
+     *                 "serial varchar, " +
+     *                 "orderNo varchar, " +
+     *                 "customerName varchar, " +
+     *                 "customerPhone varchar, " +
+     *                 "realfee integer, " +
+     *                 "paytime varchar, " +
+     *                 "printState integer" +
+     *                 ")";
+     *
+     */
+    public void insertData(OrderVO orderVO, Integer shopId, Integer branchId) {
+        if (orderVO.getOrderItemList() == null) {
+            return;
+        }
+        ContentValues values = new ContentValues();
+        values.put("shopId", shopId);
+        values.put("customerId", orderVO.getCustomerId());
+        values.put("branchId", branchId);
+        values.put("serial", orderVO.getSerial());
+        values.put("orderNo", orderVO.getOrderNo());
+        values.put("customerName", orderVO.getCustomerName());
+        values.put("customerPhone", orderVO.getCustomerPhone());
+        values.put("realfee", orderVO.getRealfee());
+        values.put("paytime", orderVO.getPaytime());
+        values.put("printState", 0);
+        values.put("totalfee", orderVO.getTotalfee());
+        values.put("itemCount", orderVO.getItemCount());
+        values.put("note", orderVO.getNote());
+        mDatabase.insert("mesh_order", null, values);
+
+        for (MeshOrderItemVO itemVO: orderVO.getOrderItemList()) {
+
+            ContentValues orderItem = new ContentValues();
+
+            orderItem.put("orderNo", orderVO.getOrderNo());
+            orderItem.put("productId", itemVO.getProductId());
+            orderItem.put("productName", itemVO.getProductName());
+            orderItem.put("price", itemVO.getPrice());
+            orderItem.put("quantity", itemVO.getQuantity());
+
+            mDatabase.insert("order_item", null, orderItem);
+        }
+    }
+
+
+    public void updatePrintState(int state, String orderNo){
+        ContentValues values = new ContentValues();
+        values.put("printState", state);
+        mDatabase.update("mesh_order", values, " orderNo = '" + orderNo + "'", null);
+    }
+
+
+    public OrderInfo queryOrderByOrderNo(String orderNo) {
+        String sql = "select * from mesh_order where orderNo = ?";
+        Cursor cursor = mDatabase.rawQuery(sql, new String[]{orderNo});
+
+        if (cursor == null) {
+            return null;
+        }
+
+        while (cursor.moveToNext()) {
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setCustomerId(cursor.getInt(2));
+            orderInfo.setSerial(cursor.getString(4));
+            orderInfo.setOrderNo(cursor.getString(5));
+            orderInfo.setCustomerName(cursor.getString(6));
+            orderInfo.setCustomerPhone(cursor.getString(7));
+            orderInfo.setRealfee(cursor.getLong(8));
+            orderInfo.setPaytime(new Date(cursor.getLong(9)));
+            orderInfo.setPrintState(cursor.getInt(10));
+            orderInfo.setTotalfee(cursor.getLong(11));
+            orderInfo.setItemCount(cursor.getInt(12));
+            try {
+
+                orderInfo.setNote(cursor.getString(13));
+            } catch (Exception e) {
+                orderInfo.setNote("");
+            }
+
+            return orderInfo;
+        }
+
+        return null;
+    }
+
+    public List<OrderInfo> query(Integer shopId, Integer branchId) {
+        String sql = "select * from mesh_order where shopId = ? and branchId = ? order by id desc";
+        Cursor cursor = mDatabase.rawQuery(sql, new String[]{shopId.toString(), branchId.toString()});
+
+        if (cursor == null) {
+            return null;
+        }
+
+        List<OrderInfo> orderInfoList = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setCustomerId(cursor.getInt(2));
+            orderInfo.setSerial(cursor.getString(4));
+            orderInfo.setOrderNo(cursor.getString(5));
+            orderInfo.setCustomerName(cursor.getString(6));
+            orderInfo.setCustomerPhone(cursor.getString(7));
+            orderInfo.setRealfee(cursor.getLong(8));
+            orderInfo.setPaytime(new Date(cursor.getLong(9)));
+            orderInfo.setPrintState(cursor.getInt(10));
+            orderInfo.setTotalfee(cursor.getLong(11));
+            orderInfo.setItemCount(cursor.getInt(12));
+            try {
+
+                orderInfo.setNote(cursor.getString(13));
+            } catch (Exception e) {
+                orderInfo.setNote("");
+            }
+
+            List<MeshOrderItemVO> orderItemVOList = queryByOrderNo(orderInfo.getOrderNo());
+
+            orderInfo.setOrderItemList(orderItemVOList);
+            orderInfoList.add(orderInfo);
+        }
+
+        return orderInfoList;
+    }
+
+    public List<MeshOrderItemVO> queryByOrderNo(String orderNo) {
+        String sql = "select * from order_item where orderNo = '" + orderNo + "'";
+        Cursor cursor = mDatabase.rawQuery(sql, null);
+
+        if (cursor == null) {
+            return null;
+        }
+        List<MeshOrderItemVO> orderItemVOList = new ArrayList<>();
+        while (cursor.moveToNext()) {
+
+            MeshOrderItemVO orderItemVO = new MeshOrderItemVO();
+
+            orderItemVO.setProductId(cursor.getInt(2));
+            orderItemVO.setProductName(cursor.getString(3));
+            orderItemVO.setPrice(Long.valueOf(cursor.getInt(4)));
+            orderItemVO.setQuantity(cursor.getInt(5));
+            orderItemVOList.add(orderItemVO);
+
+        }
+        return orderItemVOList;
+    }
+
+
+}

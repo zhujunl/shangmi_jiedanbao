@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="line">#DDDDDD</color>
+    <color name="white">#fff</color>
+    <color name="print_bg">#04A7FB</color>
+    <color name="print_text">#06A9FC</color>
+    <color name="print_again_bg">#44B549</color>
+    <color name="details_bg">#FDA538</color>
+    <color name="black">#000000</color>
+    <color name="black_d">#4C4C4C</color>
+    <color name="load_success">#03a44e</color>
+    <color name="main_color_press">#17abe3</color>
+    <color name="main_color">#1E90FF</color>
+    <color name="bg_activity_gray">#f4f4f4</color>
+</resources>
