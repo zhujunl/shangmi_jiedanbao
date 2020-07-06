@@ -3,6 +3,7 @@ package com.yp.fastpayment.ui;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,7 +21,9 @@ import com.yp.fastpayment.model.OrderInfo;
 import com.yp.fastpayment.util.BluetoothUtil;
 import com.yp.fastpayment.util.ESCUtil;
 import com.yp.fastpayment.util.PriceUtil;
+import com.yp.fastpayment.util.QrcodeUtil;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,7 +138,13 @@ public class OrderDetailsActivity extends BaseActivity {
         }
 
         // 3: Generate a order data
-        byte[] data = ESCUtil.generateMockData(orderInfo);
+        byte[] data = new byte[0];
+        try {
+            data = ESCUtil.generateMockData(orderInfo,
+                    QrcodeUtil.draw2PxPoint(QrcodeUtil.generateBitmap(orderInfo.getSerial(),200,200)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         // 4: Using InnerPrinter print data
         BluetoothSocket socket = null;
         try {

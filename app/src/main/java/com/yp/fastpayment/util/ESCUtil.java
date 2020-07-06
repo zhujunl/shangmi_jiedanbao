@@ -28,7 +28,7 @@ public class ESCUtil {
 
 	/**
 	 * 打印机初始化
-	 * 
+	 *
 	 * @return
 	 */
 	public static byte[] init_printer() {
@@ -59,7 +59,7 @@ public class ESCUtil {
 
 	/**
 	 * 绘制下划线（1点宽）
-	 * 
+	 *
 	 * @return
 	 */
 	public static byte[] underlineWithOneDotWidthOn() {
@@ -72,7 +72,7 @@ public class ESCUtil {
 
 	/**
 	 * 绘制下划线（2点宽）
-	 * 
+	 *
 	 * @return
 	 */
 	public static byte[] underlineWithTwoDotWidthOn() {
@@ -85,7 +85,7 @@ public class ESCUtil {
 
 	/**
 	 * 取消绘制下划线
-	 * 
+	 *
 	 * @return
 	 */
 	public static byte[] underlineOff() {
@@ -100,7 +100,7 @@ public class ESCUtil {
 
 	/**
 	 * 选择加粗模式
-	 * 
+	 *
 	 * @return
 	 */
 	public static byte[] boldOn() {
@@ -113,7 +113,7 @@ public class ESCUtil {
 
 	/**
 	 * 取消加粗模式
-	 * 
+	 *
 	 * @return
 	 */
 	public static byte[] boldOff() {
@@ -128,7 +128,7 @@ public class ESCUtil {
 
 	/**
 	 * 左对齐
-	 * 
+	 *
 	 * @return
 	 */
 	public static byte[] alignLeft() {
@@ -141,7 +141,7 @@ public class ESCUtil {
 
 	/**
 	 * 居中对齐
-	 * 
+	 *
 	 * @return
 	 */
 	public static byte[] alignCenter() {
@@ -154,7 +154,7 @@ public class ESCUtil {
 
 	/**
 	 * 右对齐
-	 * 
+	 *
 	 * @return
 	 */
 	public static byte[] alignRight() {
@@ -167,7 +167,7 @@ public class ESCUtil {
 
 	/**
 	 * 水平方向向右移动col列
-	 * 
+	 *
 	 * @param col
 	 * @return
 	 */
@@ -183,7 +183,7 @@ public class ESCUtil {
 
 	/**
 	 * 字体变大为标准的n倍
-	 * 
+	 *
 	 * @param num
 	 * @return
 	 */
@@ -226,7 +226,7 @@ public class ESCUtil {
 
 	/**
 	 * 字体取消倍宽倍高
-	 * 
+	 *
 	 * @param num
 	 * @return
 	 */
@@ -242,7 +242,7 @@ public class ESCUtil {
 
 	/**
 	 * 进纸并全部切割
-	 * 
+	 *
 	 * @return
 	 */
 	public static byte[] feedPaperCutAll() {
@@ -256,7 +256,7 @@ public class ESCUtil {
 
 	/**
 	 * 进纸并切割（左边留一点不切）
-	 * 
+	 *
 	 * @return
 	 */
 	public static byte[] feedPaperCutPartial() {
@@ -299,7 +299,7 @@ public class ESCUtil {
 	}
 
 	// --------------------
-	public static byte[] generateMockData(OrderInfo orderInfo) {
+	public static byte[] generateMockData(OrderInfo orderInfo,byte [] code) {
 		try {
 			List<MeshOrderItemVO> orderItemVOList = orderInfo.getOrderItemList();
 			byte[] next2Line = ESCUtil.nextLine(2);
@@ -365,10 +365,10 @@ public class ESCUtil {
 					next2Line, left, fontSize1Small, orderSerinum, fontSize1SmallNote, nextLine, center, boldOn, fontSize1Big, FocusOrderContent, boldOff,
 					fontSize1Big, nextLine, left, next2Line, center, boldOn, fontSize1Big};
 
-			byte[][] test = {boldOff, next2Line, fontSize1Small, takeTime,
+			byte[][] test = {code,next2Line,boldOff, next2Line, fontSize1Small, takeTime,
 					nextLine, setOrderTime, next2Line, center,
 					tips_1, nextLine, center, tips_2, next4Line,
-					breakPartial };
+					breakPartial};
 
 			byte[] result = ESCUtil.byteMerger(cmdBytes);
 			byte[] result2 = ESCUtil.byteMerger(test);
@@ -377,7 +377,6 @@ public class ESCUtil {
 				byte[] tempMerge = ESCUtil.byteMerger(tempArray);
 				result = ESCUtil.byteMerger(result, tempMerge);
 			}
-
 
 			return ESCUtil.byteMerger(result, result2);
 

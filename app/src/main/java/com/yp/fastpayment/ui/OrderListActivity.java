@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -21,6 +22,12 @@ import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.gson.JsonObject;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.yanzhenjie.recyclerview.OnItemClickListener;
 import com.yanzhenjie.recyclerview.OnItemMenuClickListener;
 import com.yanzhenjie.recyclerview.SwipeMenu;
@@ -38,10 +45,18 @@ import com.yp.fastpayment.thread.MsgSynchTask;
 import com.yp.fastpayment.util.BluetoothUtil;
 import com.yp.fastpayment.util.ESCUtil;
 import com.yp.fastpayment.util.GsonUtil;
+import com.yp.fastpayment.util.Jc_Utils;
+import com.yp.fastpayment.util.QrcodeUtil;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -104,7 +119,7 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
         updateOrderInfo();
     }
 
-    public void updateOrderInfo(){
+    public void updateOrderInfo() {
         Log.d(TAG, "orderDao.queryOrderList, shopId==" + Constants.shopId + ", branchId==" + Constants.branchId);
         orderInfoList = orderDao.query(Constants.shopId, Constants.branchId);
 
@@ -282,9 +297,9 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        if (popupWindow.isShowing()){
+        if (popupWindow.isShowing()) {
             popupWindow.dismiss();
-        }else {
+        } else {
             super.onBackPressed();
         }
     }
@@ -311,11 +326,21 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
         }
 
         // 3: Generate a order data
-        byte[] data = ESCUtil.generateMockData(orderInfo);
+        //插入二维码操作
+        // "mealCode": 1234,
+        byte[] data = new byte[0];
+        try {
+            data = ESCUtil.generateMockData(orderInfo,
+                    QrcodeUtil.draw2PxPoint(QrcodeUtil.generateBitmap(orderInfo.getSerial(),200,200)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         // 4: Using InnerPrinter print data
         BluetoothSocket socket = null;
         try {
             socket = BluetoothUtil.getSocket(device);
+
             BluetoothUtil.sendData(data, socket);
         } catch (IOException e) {
             if (socket != null) {
@@ -334,7 +359,9 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
         orderListAdapter.setOrderInfoList(orderInfoList);
     }
 
+
     MediaPlayer mediaPlayer;
+
     void playMusic(int type) {
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer();

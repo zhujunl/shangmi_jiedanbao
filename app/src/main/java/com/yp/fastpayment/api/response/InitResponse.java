@@ -102,4 +102,13 @@ public class InitResponse {
             this.shopName = shopName;
         }
     }
+
+    @Override
+    public String toString() {
+        return "InitResponse{" +
+                "code=" + code +
+                ", message='" + message + '\'' +
+                ", data=" + data +
+                '}';
+    }
 }

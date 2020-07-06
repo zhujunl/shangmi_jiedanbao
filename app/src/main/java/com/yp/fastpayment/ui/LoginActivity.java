@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.yp.fastpayment.R;
 import com.yp.fastpayment.api.MyCallback;
@@ -133,7 +134,6 @@ public class LoginActivity extends BaseActivity {
 
     void loginAdmin() {
 
-
         String user_account = edit_user_account.getText().toString().trim();
         String user_psw = edit_user_psw.getText().toString().trim();
 
@@ -165,12 +165,11 @@ public class LoginActivity extends BaseActivity {
 
         Log.d(TAG, "loginRequest==" + GsonUtil.GsonString(loginRequest));
 
-
         MyRetrofit.getApiService().shangmishouchiInit(loginRequest).enqueue(new MyCallback<InitResponse>() {
 
             @Override
             public void onSuccess(InitResponse loginResponse) {
-                Log.d(TAG, "loginResponse==" + GsonUtil.GsonString(loginResponse));
+                Toast.makeText(LoginActivity.this,loginResponse.toString(),Toast.LENGTH_SHORT).show();
 
                 if (loginResponse.getCode() == 200) {
                     List<BranchVO> branchVOList = loginResponse.getData().getBranchList();
