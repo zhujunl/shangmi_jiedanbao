@@ -328,11 +328,13 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
         // 3: Generate a order data
         //插入二维码操作
         // "mealCode": 1234,
+        //1234
+        //{"mealCode": 1234}
         byte[] data = new byte[0];
         try {
             data = ESCUtil.generateMockData(orderInfo,
-                    QrcodeUtil.draw2PxPoint(QrcodeUtil.generateBitmap(orderInfo.getSerial(),200,200)));
-        } catch (IOException e) {
+                    QrcodeUtil.draw2PxPoint(QrcodeUtil.generateBitmap(new JSONObject().put("mealCode",orderInfo.getSerial()).toString(),200,200)));
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

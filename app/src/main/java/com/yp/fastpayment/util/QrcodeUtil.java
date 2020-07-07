@@ -99,6 +99,14 @@ public class QrcodeUtil {
         }
         return 0;
     }
+
+    /**
+     * 图片灰度化
+     * @param r
+     * @param g
+     * @param b
+     * @return
+     */
     private static int RGB2Gray(int r, int g, int b) {
         int gray = (int) (0.29900 * r + 0.58700 * g + 0.11400 * b);  //灰度转化公式
         return gray;

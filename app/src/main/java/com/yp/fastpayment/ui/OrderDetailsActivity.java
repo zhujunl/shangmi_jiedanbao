@@ -23,6 +23,8 @@ import com.yp.fastpayment.util.ESCUtil;
 import com.yp.fastpayment.util.PriceUtil;
 import com.yp.fastpayment.util.QrcodeUtil;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -141,10 +143,11 @@ public class OrderDetailsActivity extends BaseActivity {
         byte[] data = new byte[0];
         try {
             data = ESCUtil.generateMockData(orderInfo,
-                    QrcodeUtil.draw2PxPoint(QrcodeUtil.generateBitmap(orderInfo.getSerial(),200,200)));
-        } catch (IOException e) {
+                    QrcodeUtil.draw2PxPoint(QrcodeUtil.generateBitmap(new JSONObject().put("mealCode",orderInfo.getSerial()).toString(),200,200)));
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
         // 4: Using InnerPrinter print data
         BluetoothSocket socket = null;
         try {
