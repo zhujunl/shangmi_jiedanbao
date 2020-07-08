@@ -51,4 +51,15 @@ public class OrderListRequest {
     public void setEmployeeId(Integer employeeId) {
         this.employeeId = employeeId;
     }
+
+    @Override
+    public String toString() {
+        return "OrderListRequest{" +
+                "shopId=" + shopId +
+                ", page=" + page +
+                ", deviceId='" + deviceId + '\'' +
+                ", branchId=" + branchId +
+                ", employeeId=" + employeeId +
+                '}';
+    }
 }

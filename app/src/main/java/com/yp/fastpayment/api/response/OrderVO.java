@@ -15,6 +15,8 @@ public class OrderVO {
     private String customerPhone;
     private String note;
 
+    private String mealCode;
+
     private List<MeshOrderItemVO> orderItemList;
 
     private Long realfee;
@@ -108,5 +110,31 @@ public class OrderVO {
 
     public void setPaytime(Long paytime) {
         this.paytime = paytime;
+    }
+
+    public String getMealCode() {
+        return mealCode;
+    }
+
+    public void setMealCode(String mealCode) {
+        this.mealCode = mealCode;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderVO{" +
+                "orderNo='" + orderNo + '\'' +
+                ", serial='" + serial + '\'' +
+                ", customerId=" + customerId +
+                ", itemCount=" + itemCount +
+                ", customerName='" + customerName + '\'' +
+                ", customerPhone='" + customerPhone + '\'' +
+                ", note='" + note + '\'' +
+                ", mealCode='" + mealCode + '\'' +
+                ", orderItemList=" + orderItemList +
+                ", realfee=" + realfee +
+                ", totalfee=" + totalfee +
+                ", paytime=" + paytime +
+                '}';
     }
 }

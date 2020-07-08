@@ -333,7 +333,7 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
         byte[] data = new byte[0];
         try {
             data = ESCUtil.generateMockData(orderInfo,
-                    QrcodeUtil.draw2PxPoint(QrcodeUtil.generateBitmap(new JSONObject().put("mealCode",orderInfo.getSerial()).toString(),200,200)));
+                    QrcodeUtil.draw2PxPoint(QrcodeUtil.generateBitmap(new JSONObject().put("mealCode",orderInfo.getMealCode()).toString(),200,200)));
         } catch (Exception e) {
             e.printStackTrace();
         }

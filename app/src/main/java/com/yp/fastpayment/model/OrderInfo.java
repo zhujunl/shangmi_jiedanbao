@@ -19,6 +19,8 @@ public class OrderInfo {
     private String customerPhone;
     private String note;
 
+    private String mealCode;
+
     private List<MeshOrderItemVO> orderItemList;
 
     private Long realfee;
@@ -120,5 +122,32 @@ public class OrderInfo {
 
     public void setPaytime(Date paytime) {
         this.paytime = paytime;
+    }
+
+    public String getMealCode() {
+        return mealCode;
+    }
+
+    public void setMealCode(String mealCode) {
+        this.mealCode = mealCode;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderInfo{" +
+                "orderNo='" + orderNo + '\'' +
+                ", serial='" + serial + '\'' +
+                ", customerId=" + customerId +
+                ", itemCount=" + itemCount +
+                ", printState=" + printState +
+                ", customerName='" + customerName + '\'' +
+                ", customerPhone='" + customerPhone + '\'' +
+                ", note='" + note + '\'' +
+                ", mealCode='" + mealCode + '\'' +
+                ", orderItemList=" + orderItemList +
+                ", realfee=" + realfee +
+                ", totalfee=" + totalfee +
+                ", paytime=" + paytime +
+                '}';
     }
 }

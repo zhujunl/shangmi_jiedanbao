@@ -71,6 +71,7 @@ public class MsgSynchTask implements Runnable {
             @Override
             public void onSuccess(OrderListResponse response) {
                 Log.d(TAG, "OrderListResponse==" + GsonUtil.GsonString(response));
+                System.out.println("新订单:"+ GsonUtil.GsonString(response));
 
                 if (response.getCode() == 200) {
                     List<OrderVO> orderVOList = response.getData();

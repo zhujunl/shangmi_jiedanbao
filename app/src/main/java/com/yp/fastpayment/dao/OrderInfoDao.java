@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.yp.fastpayment.R;
@@ -35,20 +36,20 @@ public class OrderInfoDao {
 
     /**
      * // 建表 订单表
-     *         String orderInfoSql = "create table mesh_order" +
-     *                 "(id integer primary key autoincrement, " +
-     *                 "shopId integer, " +
-     *                 "customerId integer, " +
-     *                 "branchId integer, " +
-     *                 "serial varchar, " +
-     *                 "orderNo varchar, " +
-     *                 "customerName varchar, " +
-     *                 "customerPhone varchar, " +
-     *                 "realfee integer, " +
-     *                 "paytime varchar, " +
-     *                 "printState integer" +
-     *                 ")";
-     *
+     * String orderInfoSql = "create table mesh_order" +
+     * "(id integer primary key autoincrement, " +
+     * "shopId integer, " +
+     * "customerId integer, " +
+     * "branchId integer, " +
+     * "serial varchar, " +
+     * "orderNo varchar, " +
+     * "customerName varchar, " +
+     * "customerPhone varchar, " +
+     * "realfee integer, " +
+     * "paytime varchar, " +
+     * "printState integer" +
+     * "mealCode varchar, " +
+     * ")";
      */
     public void insertData(OrderVO orderVO, Integer shopId, Integer branchId) {
         if (orderVO.getOrderItemList() == null) {
@@ -59,6 +60,7 @@ public class OrderInfoDao {
         values.put("customerId", orderVO.getCustomerId());
         values.put("branchId", branchId);
         values.put("serial", orderVO.getSerial());
+        values.put("mealCode", orderVO.getMealCode() != null ? orderVO.getMealCode() : "");
         values.put("orderNo", orderVO.getOrderNo());
         values.put("customerName", orderVO.getCustomerName());
         values.put("customerPhone", orderVO.getCustomerPhone());
@@ -70,7 +72,7 @@ public class OrderInfoDao {
         values.put("note", orderVO.getNote());
         mDatabase.insert("mesh_order", null, values);
 
-        for (MeshOrderItemVO itemVO: orderVO.getOrderItemList()) {
+        for (MeshOrderItemVO itemVO : orderVO.getOrderItemList()) {
 
             ContentValues orderItem = new ContentValues();
 
@@ -85,7 +87,7 @@ public class OrderInfoDao {
     }
 
 
-    public void updatePrintState(int state, String orderNo){
+    public void updatePrintState(int state, String orderNo) {
         ContentValues values = new ContentValues();
         values.put("printState", state);
         mDatabase.update("mesh_order", values, " orderNo = '" + orderNo + "'", null);
@@ -112,6 +114,7 @@ public class OrderInfoDao {
             orderInfo.setPrintState(cursor.getInt(10));
             orderInfo.setTotalfee(cursor.getLong(11));
             orderInfo.setItemCount(cursor.getInt(12));
+            orderInfo.setMealCode(cursor.getString(14));
             try {
 
                 orderInfo.setNote(cursor.getString(13));
@@ -135,30 +138,27 @@ public class OrderInfoDao {
 
         List<OrderInfo> orderInfoList = new ArrayList<>();
         while (cursor.moveToNext()) {
-            OrderInfo orderInfo = new OrderInfo();
-            orderInfo.setCustomerId(cursor.getInt(2));
-            orderInfo.setSerial(cursor.getString(4));
-            orderInfo.setOrderNo(cursor.getString(5));
-            orderInfo.setCustomerName(cursor.getString(6));
-            orderInfo.setCustomerPhone(cursor.getString(7));
-            orderInfo.setRealfee(cursor.getLong(8));
-            orderInfo.setPaytime(new Date(cursor.getLong(9)));
-            orderInfo.setPrintState(cursor.getInt(10));
-            orderInfo.setTotalfee(cursor.getLong(11));
-            orderInfo.setItemCount(cursor.getInt(12));
+            OrderInfo orin = new OrderInfo();
+            orin.setCustomerId(cursor.getInt(2));
+            orin.setSerial(cursor.getString(4));
+            orin.setOrderNo(cursor.getString(5));
+            orin.setCustomerName(cursor.getString(6));
+            orin.setCustomerPhone(cursor.getString(7));
+            orin.setRealfee(cursor.getLong(8));
+            orin.setPaytime(new Date(cursor.getLong(9)));
+            orin.setPrintState(cursor.getInt(10));
+            orin.setTotalfee(cursor.getLong(11));
+            orin.setItemCount(cursor.getInt(12));
+            orin.setMealCode(cursor.getString(14));
             try {
-
-                orderInfo.setNote(cursor.getString(13));
+                orin.setNote(cursor.getString(13));
             } catch (Exception e) {
-                orderInfo.setNote("");
+                orin.setNote("");
             }
-
-            List<MeshOrderItemVO> orderItemVOList = queryByOrderNo(orderInfo.getOrderNo());
-
-            orderInfo.setOrderItemList(orderItemVOList);
-            orderInfoList.add(orderInfo);
+            List<MeshOrderItemVO> orderItemVOList = queryByOrderNo(orin.getOrderNo());
+            orin.setOrderItemList(orderItemVOList);
+            orderInfoList.add(orin);
         }
-
         return orderInfoList;
     }
 
