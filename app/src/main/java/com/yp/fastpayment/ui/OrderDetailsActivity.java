@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.graphics.Bitmap;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -142,8 +143,8 @@ public class OrderDetailsActivity extends BaseActivity {
         // 3: Generate a order data
         byte[] data = new byte[0];
         try {
-            data = ESCUtil.generateMockData(orderInfo,
-                    QrcodeUtil.draw2PxPoint(QrcodeUtil.generateBitmap(new JSONObject().put("mealCode",orderInfo.getMealCode()).toString(),200,200)));
+            byte[] code = TextUtils.isEmpty(orderInfo.getMealCode()) ? null : QrcodeUtil.draw2PxPoint(QrcodeUtil.generateBitmap(new JSONObject().put("mealCode", orderInfo.getMealCode()).toString(), 200, 200));
+            data = ESCUtil.generateMockData(orderInfo, code);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -164,8 +165,6 @@ public class OrderDetailsActivity extends BaseActivity {
         }
 
         orderInfo.setPrintState(1);
-
-
 
     }
 }

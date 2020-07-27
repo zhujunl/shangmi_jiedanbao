@@ -317,6 +317,7 @@ public class ESCUtil {
             ////支付类型 0：二维码支付，1：人脸支付，2：实体卡支付，3：其他支付,  4:商户扫码支付
 
             byte[] Focus = ("取餐号：" + orderInfo.getSerial()).getBytes("gb2312");
+            byte[] mealCode = ("取餐码：" + orderInfo.getMealCode()).getBytes("gb2312");
             byte[] boldOff = ESCUtil.boldOff();
             byte[] fontSize2Small = ESCUtil.fontSizeSetSmall(2);
 
@@ -363,20 +364,41 @@ public class ESCUtil {
 
             //备注为null不打印
             //取餐号为空不打印
-            byte[][] cmdBytes = new byte[][]{title, nextLine, branchName, next2Line, center, boldOn, fontSize2Big,
-                    TextUtils.isEmpty(orderInfo.getSerial()) ? ESCUtil.nextLine(0) : Focus, boldOff, fontSize3Big,
-                    next2Line,
-                    TextUtils.isEmpty(orderInfo.getNote()) ? ESCUtil.nextLine(0) : Note, boldOff,
-                    next2Line, left, fontSize1Small, orderSerinum, fontSize1SmallNote, nextLine, center, boldOn,
-                    fontSize1Big, FocusOrderContent, boldOff,
-                    fontSize1Big, nextLine, left, next2Line, center, boldOn, fontSize1Big};
+
+//            byte[][] cmdBytes = new byte[][]{title, nextLine, branchName, next2Line, center, boldOn, fontSize2Big,
+//                    TextUtils.isEmpty(orderInfo.getSerial()) ? ESCUtil.nextLine(0) : Focus, boldOff, fontSize3Big,
+//                    next2Line,
+//                    TextUtils.isEmpty(orderInfo.getNote()) ? ESCUtil.nextLine(0) : Note, boldOff,
+//                    next2Line, left, fontSize1Small, orderSerinum, fontSize1SmallNote, nextLine, center, boldOn,
+//                    fontSize1Big, FocusOrderContent, boldOff,
+//                    fontSize1Big, nextLine, left, next2Line, center, boldOn, fontSize1Big};
+            System.out.println("备注："+orderInfo.getNote());
+            byte [] separator = "                                                                                ".getBytes("gb2312");
+            byte[][] cmdBytes = new byte[][]{
+                    separator,
+                    nextLine,center, fontSize1Big,title,
+                    nextLine,center, fontSize2Big,branchName,
+                    nextLine,center, fontSize2Big,TextUtils.isEmpty(orderInfo.getSerial()) ? ESCUtil.nextLine(0) : Focus,
+                    nextLine,center, fontSize1Big,TextUtils.isEmpty(orderInfo.getNote()) ? ESCUtil.nextLine(0) : Note,
+                    nextLine,center, fontSize1Big,orderSerinum,
+                    nextLine,center, fontSize1Big,
+                    nextLine};
+
+//            byte[][] test = {
+//                    code ==  null ? ESCUtil.nextLine(0) : code,
+//                    TextUtils.isEmpty(orderInfo.getSerial()) ? ESCUtil.nextLine(0) : next2Line,
+//                    boldOff, next2Line, fontSize1Small, takeTime,
+//                    nextLine, setOrderTime, next2Line, center,
+//                    tips_1, nextLine, center, tips_2, next4Line,m
+//                    breakPartial};
 
             byte[][] test = {
-                    TextUtils.isEmpty(orderInfo.getSerial()) ? ESCUtil.nextLine(0) : code,
-                    TextUtils.isEmpty(orderInfo.getSerial()) ? ESCUtil.nextLine(0) : next2Line,
-                    boldOff, next2Line, fontSize1Small, takeTime,
-                    nextLine, setOrderTime, next2Line, center,
-                    tips_1, nextLine, center, tips_2, next4Line,
+                    nextLine,code ==  null ? ESCUtil.nextLine(0) : code,
+                    nextLine,center, fontSize2Big,TextUtils.isEmpty(orderInfo.getMealCode()) ? ESCUtil.nextLine(0) : mealCode,
+                    nextLine,fontSize1Big,TextUtils.isEmpty(orderInfo.getSerial()) ? nextLine : next2Line,center, setOrderTime,
+                    next2Line,fontSize1Big,center, tips_1,
+                    nextLine,separator,
+                    nextLine,separator,
                     breakPartial};
 
             byte[] result = ESCUtil.byteMerger(cmdBytes);

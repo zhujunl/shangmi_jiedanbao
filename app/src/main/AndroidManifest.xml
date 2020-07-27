@@ -2,34 +2,29 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.yp.fastpayment">
-
-    <!--相机 扫码-->
+    <!-- 相机 扫码 -->
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
-    <uses-permission android:name="android.permission.FLASHLIGHT" />
-
-    <!--蓝牙打印机-->
+    <uses-permission android:name="android.permission.FLASHLIGHT" /> <!-- 蓝牙打印机 -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" android:protectionLevel="signature"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-
-    <!--读卡器-->
+    <permission
+        android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
+        android:protectionLevel="signature" /> <!-- 读卡器 -->
     <uses-permission android:name="android.permission.NFC" />
+
     <uses-feature android:name="android.hardware.nfc" />
 
     <application
@@ -40,7 +35,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ui.LoginActivity"
+        <activity
+            android:name=".ui.LoginActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -48,14 +44,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.SelectShopActivity"
-        android:screenOrientation="portrait"/>
-        <activity android:name=".ui.OrderListActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.OrderDetailsActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name="com.yp.fastpayment.ui.IpSetActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".ui.SelectShopActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.OrderListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.OrderDetailsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.IpSetActivity"
+            android:screenOrientation="portrait" />
+
         <meta-data
             android:name="design_height_in_dp"
             android:value="960" />
@@ -63,12 +64,11 @@
             android:name="design_width_in_dp"
             android:value="540" />
 
-        <receiver android:name="com.yp.fastpayment.ui.BootCompletedReceiver">
+        <receiver android:name=".ui.BootCompletedReceiver">
             <intent-filter android:priority="999">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

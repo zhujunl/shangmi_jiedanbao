@@ -10,6 +10,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -332,8 +333,8 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
         //{"mealCode": 1234}
         byte[] data = new byte[0];
         try {
-            data = ESCUtil.generateMockData(orderInfo,
-                    QrcodeUtil.draw2PxPoint(QrcodeUtil.generateBitmap(new JSONObject().put("mealCode",orderInfo.getMealCode()).toString(),200,200)));
+            byte[] code = TextUtils.isEmpty(orderInfo.getMealCode()) ? null : QrcodeUtil.draw2PxPoint(QrcodeUtil.generateBitmap(new JSONObject().put("mealCode", orderInfo.getMealCode()).toString(), 200, 200));
+            data = ESCUtil.generateMockData(orderInfo, code);
         } catch (Exception e) {
             e.printStackTrace();
         }
