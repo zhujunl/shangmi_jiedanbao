@@ -8,7 +8,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 
@@ -16,13 +21,25 @@ import com.yp.fastpayment.R;
 import com.yp.fastpayment.api.MyRetrofit;
 import com.yp.fastpayment.util.SharedPreferenceUtil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by Administrator on 2020/3/20.
  */
-
 public class IpSetActivity extends BaseActivity implements View.OnClickListener {
-    EditText et_ip_address;
-    TextView tv_set;
+
+    ArrayList<String> iplist=new ArrayList<>(Arrays.asList("http://","https://"));
+    EditText ip_edit;
+    Spinner spinner;
+    Button cancle,sure;
+    TextView back,ip_now;
+    String ip;
+    LinearLayout layout1,layout2;
+
+//    EditText et_ip_address;
+//    TextView tv_set;
     /*@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,45 +61,90 @@ public class IpSetActivity extends BaseActivity implements View.OnClickListener 
 
     @Override
     protected void initView() {
-        et_ip_address = findViewById(R.id.et_ip_address);
-        tv_set = findViewById(R.id.tv_set);
+//        et_ip_address = findViewById(R.id.et_ip_address);
+//        tv_set = findViewById(R.id.tv_set);
+        ip_edit=findViewById(R.id.ip_eid);
+        cancle=findViewById(R.id.ip_cancle);
+        sure=findViewById(R.id.ip_sure);
+        spinner=findViewById(R.id.ip_spinner);
+        back=findViewById(R.id.ip_back);
+        layout1=findViewById(R.id.ip_layout1);
+        layout2=findViewById(R.id.ip_layout2);
+        ip_now=findViewById(R.id.ip_now);
     }
 
     private void bindDefault() {
-        et_ip_address.setText(MyRetrofit.ipAddress);
-        et_ip_address.setSelection(et_ip_address.getText().toString().length());
+//        et_ip_address.setText(MyRetrofit.ipAddress);
+//        et_ip_address.setSelection(et_ip_address.getText().toString().length());
+        ip_now.setText(MyRetrofit.ipAddress);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, iplist);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                ip=iplist.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
 
     private void registerClick() {
-        tv_set.setOnClickListener(this);
+//        tv_set.setOnClickList
+//        );
+        cancle.setOnClickListener(this);
+        back.setOnClickListener(this);
+        sure.setOnClickListener(this);
     }
 
     public void onClick(View v) {
+//        switch (v.getId()){
+///                clickSetIP();
+//                break;
+//        }
         switch (v.getId()){
-            case R.id.tv_set:
+            case R.id.ip_cancle:
+                finish();
+                break;
+            case R.id.ip_sure:
                 clickSetIP();
+                break;
+            case R.id.ip_back:
+                finish();
                 break;
         }
     }
-
+//
     private void clickSetIP() {
-        String ipAddress = et_ip_address.getText().toString();
-        if(TextUtils.isEmpty(ipAddress)){
+        String edit = ip_edit.getText().toString();
+        //String ipAddress= et_ip_address.getText().toString();
+        if(TextUtils.isEmpty(edit)){
             showToast("请输入ip地址");
             return;
         }
-        if(!ipAddress.contains("http")){
-            showToast("请输入正确ip地址");
-            return;
-        }
+//        if(!ipAddress.contains("http")){
+//            showToast("请输入正确ip地址");
+//            return;
+//        }
+        String ipAddress=ip+edit.trim();
         SharedPreferenceUtil.getInstance(this).putString("IpAddress",ipAddress);
 
         MyRetrofit.ipAddress = ipAddress;
+//        MyRetrofit.ipAddress2 = ipAddress;
 
         showToast("IP地址设置成功");
         finish();
     }
+
+
+
     /*private void reStartApp()
     {
         new Handler().postDelayed(new Runnable() {

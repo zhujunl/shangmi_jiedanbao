@@ -29,6 +29,23 @@
             android:text="登出"
             android:textColor="#ff333333"
             android:textSize="20sp" />
+        <LinearLayout
+            android:layout_width="300dp"
+            android:layout_height="42dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="20dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="启动自动打印"
+                android:textColor="#ff333333"
+                android:textSize="20sp"/>
+            <Switch
+                android:id="@+id/print_auto"
+                android:layout_marginLeft="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
 
         <View
             android:layout_width="280dp"

@@ -4,8 +4,11 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,7 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.yp.fastpayment.R;
 import com.yp.fastpayment.adapter.OrderListDetailsAdapter;
+import com.yp.fastpayment.api.MyRetrofit;
+import com.yp.fastpayment.api.request.WriteOffRequest;
 import com.yp.fastpayment.api.response.MeshOrderItemVO;
+import com.yp.fastpayment.api.response.WriteOffResponse;
 import com.yp.fastpayment.constant.Constants;
 import com.yp.fastpayment.dao.OrderInfoDao;
 import com.yp.fastpayment.entity.GoodsInfo;
@@ -30,6 +36,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * @author cp
@@ -50,6 +60,9 @@ public class OrderDetailsActivity extends BaseActivity {
     TextView tv_details_subtotal_price;
     TextView tv_details_reduction_price;
     TextView tv_details_total_price;
+    TextView tv_details_order_levelname;
+    Button updata_st;
+    Button print;
 
     OrderInfoDao orderDao;
 
@@ -80,6 +93,7 @@ public class OrderDetailsActivity extends BaseActivity {
         tv_details_reduction_price.setText("¥" + PriceUtil.changeF2Y((Constants.curOrderInfo.getTotalfee() - Constants.curOrderInfo.getRealfee())));
         tv_details_total_price.setText("¥" + PriceUtil.changeF2Y(Constants.curOrderInfo.getRealfee()));
 
+        tv_details_order_levelname.setText(Constants.curOrderInfo.getLevelName());
 
         List<GoodsInfo> list=new ArrayList<>();
         for (MeshOrderItemVO meshOrderItemVO : Constants.curOrderInfo.getOrderItemList()) {
@@ -87,6 +101,13 @@ public class OrderDetailsActivity extends BaseActivity {
             list.add(new GoodsInfo(meshOrderItemVO.getProductName(),meshOrderItemVO.getQuantity(),PriceUtil.changeF2Y(meshOrderItemVO.getPrice())));
         }
         orderListDetailsAdapter.setList(list);
+
+        if (Constants.curOrderInfo.getPrintState()==1){
+            print.setText("再次打印");
+        }else {
+            print.setText("打印");
+        }
+
     }
 
     @Override
@@ -101,7 +122,9 @@ public class OrderDetailsActivity extends BaseActivity {
         tv_details_reduction_price = findViewById(R.id.tv_details_reduction_price);
         tv_details_total_price = findViewById(R.id.tv_details_total_price);
         tv_details_note = findViewById(R.id.tv_details_note);
-
+        tv_details_order_levelname=findViewById(R.id.tv_details_order_levelname);
+        print=findViewById(R.id.print);
+        updata_st=findViewById(R.id.updata_st);
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
@@ -109,6 +132,22 @@ public class OrderDetailsActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setAdapter(orderListDetailsAdapter);
+
+        Log.d("Name=======",Constants.curOrderInfo.toString());
+
+        if(TextUtils.isEmpty(Constants.curOrderInfo.getLevelName())){
+            findViewById(R.id.levelname_txt).setVisibility(View.GONE);
+        }else {
+            findViewById(R.id.levelname_txt).setVisibility(View.VISIBLE);
+        }
+
+        if(Constants.curOrderInfo.getReserveStatus()==10){
+            updata_st.setText("已核销");
+            updata_st.setBackground(getResDrawable(R.drawable.bg_writeoffed));
+        }else {
+            updata_st.setText("核销");
+            updata_st.setBackground(getResDrawable(R.drawable.btn_sel));
+        }
     }
 
     public void back(View view) {
@@ -117,6 +156,34 @@ public class OrderDetailsActivity extends BaseActivity {
 
     public void print(View view) {
         doPrintOrder(Constants.curOrderInfo);
+        if(print.getText().equals("打印")){
+            print.setText("再次打印");
+        }
+    }
+
+    public void updata(View view){
+        WriteOffRequest writeOffRequest=new WriteOffRequest();
+        writeOffRequest.setOrderNo(Constants.curOrderInfo.getOrderNo());
+        writeOffRequest.setShopId(Constants.shopId);
+        writeOffRequest.setStatus(10);
+        MyRetrofit.getApiService().SetMealStatus(writeOffRequest).enqueue(new Callback<WriteOffResponse>() {
+            @Override
+            public void onResponse(Call<WriteOffResponse> call, Response<WriteOffResponse> response) {
+                if(response.body().getCode()!=200){
+                    showToast(response.body().getMessage());
+                }else {
+                    showToast("核销成功");
+                    updata_st.setText("已核销");
+                    updata_st.setBackground(getResDrawable(R.drawable.bg_writeoffed));
+                    orderDao.updateState(10,Constants.curOrderInfo.getOrderNo());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<WriteOffResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     public void doPrintOrder(OrderInfo orderInfo) {

@@ -44,6 +44,15 @@
             android:textColor="#ffffffff"
             android:textSize="18sp"
             />
+        <Spinner
+            android:id="@+id/order_style"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="20dp"
+            android:layout_alignParentRight="true"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:background="@android:color/transparent"
+            android:dropDownVerticalOffset="40dp"/>
     </RelativeLayout>
     <com.yanzhenjie.recyclerview.SwipeRecyclerView
         android:id="@+id/swipe_recycler_view"

@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -16,19 +15,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.gson.JsonObject;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
 import com.yanzhenjie.recyclerview.OnItemClickListener;
 import com.yanzhenjie.recyclerview.OnItemMenuClickListener;
 import com.yanzhenjie.recyclerview.SwipeMenu;
@@ -38,31 +38,43 @@ import com.yanzhenjie.recyclerview.SwipeMenuItem;
 import com.yanzhenjie.recyclerview.SwipeRecyclerView;
 import com.yp.fastpayment.R;
 import com.yp.fastpayment.adapter.OrderListAdapter;
+import com.yp.fastpayment.api.MyCallback;
+import com.yp.fastpayment.api.MyRetrofit;
+import com.yp.fastpayment.api.request.OrderDelRequest;
+import com.yp.fastpayment.api.request.PeriodRequest;
+import com.yp.fastpayment.api.response.OrderDelResponse;
+import com.yp.fastpayment.api.response.OrderDelVO;
+import com.yp.fastpayment.api.response.OrderListResponse;
+import com.yp.fastpayment.api.response.PeriodResponse;
 import com.yp.fastpayment.constant.Constants;
 import com.yp.fastpayment.dao.OrderInfoDao;
+import com.yp.fastpayment.dao.ShopConfigDao;
 import com.yp.fastpayment.model.OrderInfo;
 import com.yp.fastpayment.interfaces.OnOrderItemClickListenr;
+import com.yp.fastpayment.model.ShopConfig;
 import com.yp.fastpayment.thread.MsgSynchTask;
 import com.yp.fastpayment.util.BluetoothUtil;
 import com.yp.fastpayment.util.ESCUtil;
 import com.yp.fastpayment.util.GsonUtil;
-import com.yp.fastpayment.util.Jc_Utils;
 import com.yp.fastpayment.util.QrcodeUtil;
+import com.yp.fastpayment.util.SharedPreferenceUtil;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import me.jessyan.autosize.utils.AutoSizeUtils;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * @author jay
@@ -77,13 +89,24 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
     OrderListAdapter orderListAdapter;
     private static final String TAG = "OrderListActivity";
     List<OrderInfo> orderInfoList = new ArrayList<>();
+    List<OrderInfo> RV_list = new ArrayList<>();
     OrderInfoDao orderDao;
+    Spinner spinner_style;
+    int pos_style=0;
+    ArrayAdapter<String> spinneradatper;
+    ArrayList<String> list=new ArrayList<>(Arrays.asList("全部"));
+    Boolean isAutoPrint=false;
+    Switch print_auto;
+    ShopConfigDao shopConfig;
 
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == 1) {
                 playMusic(1);
+                updateOrderInfo();
+                return;
+            }else if(msg.what==2){
                 updateOrderInfo();
                 return;
             }
@@ -100,11 +123,16 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
     @Override
     protected void initData() {
         orderDao = new OrderInfoDao(this);
+        shopConfig=new ShopConfigDao(this);
 
         scheduledExecutorServiceWithMsg = Executors.newScheduledThreadPool(10);
         scheduledExecutorServiceWithMsg.scheduleWithFixedDelay(new MsgSynchTask(this, handler),
-                30, 5, TimeUnit.SECONDS);
+                30, 10, TimeUnit.SECONDS);
 
+
+
+
+        mealTime();
     }
 
     @Override
@@ -116,16 +144,25 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
     @Override
     protected void onPostResume() {
         super.onPostResume();
-
         updateOrderInfo();
     }
 
     public void updateOrderInfo() {
         Log.d(TAG, "orderDao.queryOrderList, shopId==" + Constants.shopId + ", branchId==" + Constants.branchId);
         orderInfoList = orderDao.query(Constants.shopId, Constants.branchId);
-
+        String mealname=SharedPreferenceUtil.getInstance(OrderListActivity.this).getString("mealname");
+        if(mealname.equals("全部")){
+            RV_list=orderInfoList;
+        }else {
+            RV_list.clear();
+            for (int i=0;i<orderInfoList.size();i++){
+                if(orderInfoList.get(i).getMealHourConfigName().equals(mealname)){
+                    RV_list.add(orderInfoList.get(i));
+                }
+            }
+        }
         Log.d(TAG, "orderInfoList==" + GsonUtil.GsonString(orderInfoList));
-        orderListAdapter.setOrderInfoList(orderInfoList);
+        orderListAdapter.setOrderInfoList(RV_list);
     }
 
     @Override
@@ -143,13 +180,87 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
         swipe_recycler_view.setSwipeMenuCreator(mSwipeMenuCreator); // 菜单创建器。
         swipe_recycler_view.setOnItemClickListener(this);
         swipe_recycler_view.setAdapter(orderListAdapter);
+        spinner_style=findViewById(R.id.order_style);
 
         tv_merchant_name.setText(Constants.shopName);
         tv_shop_name.setText(Constants.branchName);
 
         Log.d(TAG, "orderInfoList============================" + GsonUtil.GsonString(orderInfoList));
 
+        spinner_style.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                pos_style=i;
+                updateOrderInfo();
+                List<OrderInfo> mm;
+                if(i==0){
+                    mm=orderDao.query(Constants.shopId, Constants.branchId);
+                    SharedPreferenceUtil.getInstance(OrderListActivity.this).putString("mealname","全部");
+                }else {
+                    mm=orderDao.querymeal(list.get(i));
+                    SharedPreferenceUtil.getInstance(OrderListActivity.this).putString("mealname",list.get(i));
+                }
+                if(mm.size()>0){
+                    updateOrderInfo();
+                    orderListAdapter.setOrderInfoList(mm);
+                }else {
+                    showToast("当前选择的餐段无订单");
+                }
+
+                Log.d("点击的是",pos_style+"");
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+
     }
+
+    private void mealTime(){
+//        list.add("全部");
+//        ArrayAdapter<String> spinneradatper=new ArrayAdapter<String>(this,R.layout.item_order_spinner,list);
+//        spinneradatper.setDropDownViewResource(R.layout.item_order_spinner_drop);
+//        spinner_style.setAdapter(spinneradatper);
+        PeriodRequest periodRequest=new PeriodRequest();
+        periodRequest.setBranchId(Constants.branchId);
+        periodRequest.setShopId(Constants.shopId);
+        Log.d("periodRequest===",periodRequest.toString());
+        MyRetrofit.getApiService2().shangmishouchigetBranchMealPeriod(periodRequest).enqueue(new Callback<PeriodResponse>() {
+            @Override
+            public void onResponse(Call<PeriodResponse> call, Response<PeriodResponse> response) {
+                if(response.code()==200){
+                    Log.d("response====",GsonUtil.GsonString(response.body().getData()));
+                    int o=0;
+                    Log.d("餐段长度=====",response.body().getData().size()+"");
+                    for (PeriodResponse.Data data :response.body().getData()){
+                        list.add(data.getMealHourName());
+                        o++;
+                        Log.d("o====",o+"");
+                    }
+                    Log.d("list=====",list.toString());
+                    spinneradatper=new ArrayAdapter<String>(OrderListActivity.this,R.layout.item_order_spinner,list);
+                    spinneradatper.setDropDownViewResource(R.layout.item_order_spinner_drop);
+                    spinner_style.setAdapter(spinneradatper);
+                }else {
+                    Toast.makeText(OrderListActivity.this,response.message(),Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PeriodResponse> call, Throwable t) {
+                Log.d(TAG, "getmealHour onFailure==" + t.getMessage());
+                Log.d(TAG, "getmealHour onFailure==" + t.getCause());
+                Log.d(TAG, "getmealHour onFailure==" + call.toString());
+                showToast("网络异常");
+            }
+        });
+
+    }
+
+
 
     /**
      * 菜单创建器。
@@ -175,8 +286,9 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
                     .setTextSize(AutoSizeUtils.sp2px(mContext, 11))
                     .setWidth(width)
                     .setHeight(height);
+
             //根据打印状态显示
-            if (orderInfoList.get(position).getPrintState() == 1) {
+            if (RV_list.get(position).getPrintState() == 1) {
                 swipeRightMenu.addMenuItem(printAgainItem);
             } else {
                 swipeRightMenu.addMenuItem(printItem);
@@ -221,13 +333,13 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
      */
     private void printOrder(int pos) {
 //        showToast("打印list第" + pos + "项");
-        doPrintOrder(orderInfoList.get(pos));
+        doPrintOrder(RV_list.get(pos));
     }
 
     private void openDetails(int pos) {
 
         Intent intent = new Intent(mContext, OrderDetailsActivity.class);
-        Constants.curOrderInfo = orderInfoList.get(pos);
+        Constants.curOrderInfo = RV_list.get(pos);
         startActivity(intent);
     }
 
@@ -241,11 +353,18 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
             case R.id.tv_change_user:
                 popupWindow.dismiss();
                 startActivity(new Intent(mContext, SelectShopActivity.class));
+                SharedPreferenceUtil.getInstance(this).putString("branchName","");
+                SharedPreferenceUtil.getInstance(this).putInt("branchId",0);
                 finish();
                 break;
             case R.id.tv_login_out:
                 popupWindow.dismiss();
+                shopConfig.delete();
+                orderDao.delete();
+                Constants.isAutoPrint=false;
                 startActivity(new Intent(mContext, LoginActivity.class));
+                SharedPreferenceUtil.getInstance(this).putString("branchName","");
+                SharedPreferenceUtil.getInstance(this).putInt("branchId",0);
                 finish();
                 break;
             default:
@@ -277,6 +396,7 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
                 ViewGroup.LayoutParams.WRAP_CONTENT);
 //        popupWindow.setContentView(LayoutInflater.from(this).inflate(R.layout.pop_layout, null));
         popupWindow.setOutsideTouchable(true);
+        popupWindow.setFocusable(true);
         popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
@@ -287,6 +407,16 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
 
         view.findViewById(R.id.tv_change_user).setOnClickListener(this);
         view.findViewById(R.id.tv_login_out).setOnClickListener(this);
+
+        print_auto=view.findViewById(R.id.print_auto);
+        print_auto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                isAutoPrint=!isAutoPrint;
+                Constants.isAutoPrint=!Constants.isAutoPrint;
+                compoundButton.setChecked(b);
+            }
+        });
     }
 
     private void bgAlpha(float bgAlpha) {
@@ -298,6 +428,7 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         if (popupWindow.isShowing()) {
             popupWindow.dismiss();
         } else {
@@ -359,7 +490,7 @@ public class OrderListActivity extends BaseActivity implements View.OnClickListe
 
         orderDao.updatePrintState(1, orderInfo.getOrderNo());
 
-        orderListAdapter.setOrderInfoList(orderInfoList);
+        orderListAdapter.setOrderInfoList(RV_list);
     }
 
 

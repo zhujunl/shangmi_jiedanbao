@@ -8,11 +8,9 @@ import java.util.Map;
 
 public class GsonUtil {
 
-    private static Gson gson = null;
+    private static Gson gson;
     static {
-        if (gson == null) {
-            gson = new Gson();
-        }
+        gson = new Gson();
     }
 
     private GsonUtil() {
@@ -63,6 +61,15 @@ public class GsonUtil {
         return list;
     }
 
+    public static <T> List<T> GsonToList(String gsonString) {
+        List<T> list = null;
+        if (gson != null) {
+            list = gson.fromJson(gsonString, new TypeToken<List<T>>() {
+            }.getType());
+        }
+        return list;
+    }
+
     /**
      * 转成list中有map的
      *
@@ -85,7 +92,7 @@ public class GsonUtil {
      * @param gsonString
      * @return
      */
-    public static <T> Map<String, T> GsonToMaps(String gsonString) {
+    public static <T> Map<String, T> gsonToMaps(String gsonString) {
         Map<String, T> map = null;
         if (gson != null) {
             map = gson.fromJson(gsonString, new TypeToken<Map<String, T>>() {

@@ -22,7 +22,9 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class MyRetrofit {
     private static final String TAG = "MyRetrofit";
-    public static String ipAddress = "https://binguoai.com/";
+   public static String ipAddress = "https://binguoai.com/";
+//    public static String ipAddress = "https://zx.yunpengai.com/";
+    public static String ipAddress2 = "http://192.168.10.52:9096/";
     /*public static Api getApiService() {
 
 
@@ -45,6 +47,49 @@ public class MyRetrofit {
                 //设置OKHttpClient,如果不设置会提供一个默认的
                 .client(genericClient())
                 .baseUrl(ipAddress)
+                .addConverterFactory(ScalarsConverterFactory.create())
+                //添加Gson转换器
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        Api service = retrofit.create(Api.class);
+        return service;
+    }
+
+    public static Api getApiService2() {
+        Log.d(TAG, "ipAddress==" + ipAddress);
+        Retrofit retrofit = new Retrofit.Builder()
+                //设置OKHttpClient,如果不设置会提供一个默认的
+                .client(genericClient())
+                .baseUrl(ipAddress)
+                .addConverterFactory(ScalarsConverterFactory.create())
+                //添加Gson转换器
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        Api service = retrofit.create(Api.class);
+        return service;
+    }
+
+    public static Api getApiService3() {
+        Log.d(TAG, "ipAddress==" + ipAddress);
+        Retrofit retrofit = new Retrofit.Builder()
+                //设置OKHttpClient,如果不设置会提供一个默认的
+                .client(genericClient())
+                .baseUrl(ipAddress)
+                .addConverterFactory(ScalarsConverterFactory.create())
+                //添加Gson转换器
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        Api service = retrofit.create(Api.class);
+        return service;
+    }
+    public static Api getApiService4() {
+        Log.d(TAG, "ipAddress==" + "http://192.168.10.52:8100/");
+        Retrofit retrofit = new Retrofit.Builder()
+                //设置OKHttpClient,如果不设置会提供一个默认的
+                .client(genericClient())
+                .baseUrl("http://192.168.10.52:9096/")
                 .addConverterFactory(ScalarsConverterFactory.create())
                 //添加Gson转换器
                 .addConverterFactory(GsonConverterFactory.create())

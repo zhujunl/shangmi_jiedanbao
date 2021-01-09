@@ -16,5 +16,6 @@ public class Constants {
     public static String branchName;
     public static String shopName;
     public static OrderInfo curOrderInfo;
+    public static Boolean isAutoPrint=false;
     public static boolean newOrder = false;
 }

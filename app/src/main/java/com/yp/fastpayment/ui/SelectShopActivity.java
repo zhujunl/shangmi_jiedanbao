@@ -2,6 +2,7 @@ package com.yp.fastpayment.ui;
 
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,6 +21,7 @@ import com.yp.fastpayment.dao.OrderInfoDao;
 import com.yp.fastpayment.interfaces.OnShopItemClickListenr;
 import com.yp.fastpayment.model.OrderInfo;
 import com.yp.fastpayment.util.GsonUtil;
+import com.yp.fastpayment.util.SharedPreferenceUtil;
 
 import java.util.List;
 
@@ -43,6 +45,11 @@ public class SelectShopActivity extends BaseActivity implements OnShopItemClickL
 
     @Override
     protected void initData() {
+        if(!SharedPreferenceUtil.getInstance(this).getString("branchName").equals("")&&!"".equals(SharedPreferenceUtil.getInstance(this).getString("branchName"))){
+            Constants.branchId=SharedPreferenceUtil.getInstance(this).getInt("branchId");
+            Constants.branchName=SharedPreferenceUtil.getInstance(this).getString("branchName");
+            startActivity(new Intent(mContext, OrderListActivity.class));
+        }
         orderDao = new OrderInfoDao(this);
     }
 
@@ -57,8 +64,10 @@ public class SelectShopActivity extends BaseActivity implements OnShopItemClickL
     @Override
     public void onItemCallback(int pos) {
         Constants.branchId = pos;
+        SharedPreferenceUtil.getInstance(this).putInt("branchId",Constants.branchId);
         for (BranchVO branchVO : Constants.branchVOList) {
             if (branchVO.getBranchId().intValue() == pos) {
+                SharedPreferenceUtil.getInstance(this).putString("branchName",branchVO.getBranchName());
                 Constants.branchName = branchVO.getBranchName();
             }
         }
@@ -71,21 +80,21 @@ public class SelectShopActivity extends BaseActivity implements OnShopItemClickL
         request.setPage(1);
         request.setEmployeeId(Constants.employeeId);
 
+       // Toast.makeText(this, GsonUtil.GsonString(request), Toast.LENGTH_LONG).show();
+
         Log.d(TAG, "shangmishouchiOrderList==" + GsonUtil.GsonString(request));
 
 
-        MyRetrofit.getApiService().shangmishouchiOrderList(request).enqueue(new MyCallback<OrderListResponse>() {
-
+       MyRetrofit.getApiService().shangmishouchiOrderList(request).enqueue(new MyCallback<OrderListResponse>() {
+ //       MyRetrofit.getApiService4().shangmishouchiOrderList(request).enqueue(new MyCallback<OrderListResponse>() {
             @Override
             public void onSuccess(OrderListResponse response) {
                 Log.d(TAG, "OrderListResponse==" + GsonUtil.GsonString(response));
-
                 if (response.getCode() == 200) {
                     List<OrderVO> orderVOList = response.getData();
 
                     if (orderVOList == null || orderVOList.size() == 0) {
                         showToast("分店暂无订单");
-                        return;
                     }
                     Constants.orderVOList = orderVOList;
                     for (OrderVO orderVO : orderVOList) {
@@ -101,6 +110,7 @@ public class SelectShopActivity extends BaseActivity implements OnShopItemClickL
                     startActivity(new Intent(mContext, OrderListActivity.class));
                 }else {
                     showToast("分店暂无订单");
+                    startActivity(new Intent(mContext, OrderListActivity.class));
                 }
             }
 

@@ -1,16 +1,25 @@
+
 package com.yp.fastpayment.ui;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.SystemClock;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +57,9 @@ public class LoginActivity extends BaseActivity {
 
     private static final String TAG = "LoginActivity";
     EditText edit_user_account, edit_user_psw;
+    TextView pwd_txt,phone_txt,edition;
+    LinearLayout ll_psw,ll_phone;
+    Button btn_login_user;
     public static String deviceId = "";
 
     ShopConfigDao shopConfigDao;
@@ -72,15 +84,23 @@ public class LoginActivity extends BaseActivity {
         if (shopConfig != null) {
             loginAdmin();
         }
+
+        OnFocus();
     }
 
     @Override
     protected void initView() {
         edit_user_account = findViewById(R.id.edit_user_account);
         edit_user_psw = findViewById(R.id.edit_user_psw);
+        edition=findViewById(R.id.edition);
+        pwd_txt=findViewById(R.id.pwd_txt);
+        phone_txt=findViewById(R.id.phone_txt);
+        ll_phone=findViewById(R.id.ll_phone);
+        ll_psw=findViewById(R.id.ll_psw);
         tv_ip = findViewById(R.id.tv_ip);
-        findViewById(R.id.btn_login_user).setOnClickListener(onClickListener);
-
+        btn_login_user=findViewById(R.id.btn_login_user);
+        btn_login_user.setOnClickListener(onClickListener);
+        edition.setText("V"+getVersion());
         tv_ip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -94,6 +114,7 @@ public class LoginActivity extends BaseActivity {
             MyRetrofit.ipAddress = ipAddress;
         }
 
+
         checkBluetoothPermission();
 
         WifiManager wifiManager = (WifiManager) getApplication().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -106,6 +127,112 @@ public class LoginActivity extends BaseActivity {
         System.out.println("mac2:" + deviceId);
     }
 
+    /**
+     * edittext焦点事件
+     */
+
+    private void OnFocus(){
+        edit_user_account.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b){
+                    phone_txt.setTextColor(Color.parseColor("#258BFC"));
+                    ll_phone.setBackgroundResource(R.drawable.bg_checked);
+                }else {
+                    if(!TextUtils.isEmpty(edit_user_account.getText())){
+                        phone_txt.setTextColor(Color.parseColor("#258BFC"));
+                        ll_phone.setBackgroundResource(R.drawable.bg_checked);
+                    }else {
+                        phone_txt.setTextColor(Color.parseColor("#000000"));
+                        ll_phone.setBackgroundResource(R.drawable.bg_uncheck);
+                    }
+                }
+            }
+        });
+        edit_user_psw.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b){
+                    pwd_txt.setTextColor(Color.parseColor("#258BFC"));
+                    ll_psw.setBackgroundResource(R.drawable.bg_checked);
+                }else {
+                    if(!TextUtils.isEmpty(edit_user_psw.getText())){
+                        pwd_txt.setTextColor(Color.parseColor("#258BFC"));
+                        ll_psw.setBackgroundResource(R.drawable.bg_checked);
+                    }else {
+                        pwd_txt.setTextColor(Color.parseColor("#000000"));
+                        ll_psw.setBackgroundResource(R.drawable.bg_uncheck);
+                    }
+                }
+            }
+        });
+        TextWatcher textWatcher1=new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(!TextUtils.isEmpty(edit_user_psw.getText())&&!TextUtils.isEmpty(editable)){
+                    btn_login_user.setBackgroundResource(R.drawable.btn_press);
+                    btn_login_user.setTextColor(Color.parseColor("#FFFFFFFF"));
+                }else {
+                    btn_login_user.setTextColor(Color.parseColor("#000000"));
+                    btn_login_user.setBackgroundResource(R.drawable.btn_normal);
+                }
+            }
+        };
+        TextWatcher textWatcher2=new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(!TextUtils.isEmpty(edit_user_account.getText())&&!TextUtils.isEmpty(editable)){
+                    btn_login_user.setBackgroundResource(R.drawable.btn_press);
+                    btn_login_user.setTextColor(Color.parseColor("#FFFFFF"));
+                }else {
+                    btn_login_user.setTextColor(Color.parseColor("#000000"));
+                    btn_login_user.setBackgroundResource(R.drawable.btn_normal);
+                }
+            }
+        };
+        edit_user_account.addTextChangedListener(textWatcher1);
+        edit_user_psw.addTextChangedListener(textWatcher2);
+    }
+    /**
+     * 获取版本号
+     */
+    private String getVersion(){
+        //得到包管理器
+        PackageManager packageManager = getPackageManager();
+        PackageInfo packageInfo = null;
+        try {
+            //传入包名
+            packageInfo = packageManager.getPackageInfo(getPackageName(),0);
+
+        } catch (PackageManager.NameNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return packageInfo.versionName;
+
+
+
+    }
     private void continuousClick(int COUNTS, long DURATION) {
         //每次点击时，数组向前移动一位
         System.arraycopy(mHits, 1, mHits, 0, mHits.length - 1);
@@ -123,13 +250,13 @@ public class LoginActivity extends BaseActivity {
         startActivity(new Intent(mContext,SelectShopActivity.class));
         finish();
     }*/
-
     View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             loginAdmin();
         }
     };
+
 
 
     void loginAdmin() {
@@ -165,11 +292,13 @@ public class LoginActivity extends BaseActivity {
 
         Log.d(TAG, "loginRequest==" + GsonUtil.GsonString(loginRequest));
 
+//        Toast.makeText(LoginActivity.this,"*****"+GsonUtil.GsonString(loginRequest),Toast.LENGTH_SHORT).show();
+
+
         MyRetrofit.getApiService().shangmishouchiInit(loginRequest).enqueue(new MyCallback<InitResponse>() {
 
             @Override
             public void onSuccess(InitResponse loginResponse) {
-                Toast.makeText(LoginActivity.this,loginResponse.toString(),Toast.LENGTH_SHORT).show();
 
                 if (loginResponse.getCode() == 200) {
                     List<BranchVO> branchVOList = loginResponse.getData().getBranchList();
@@ -248,7 +377,7 @@ public class LoginActivity extends BaseActivity {
 
 
         MyRetrofit.getApiService().shangmishouchiOrderList(request).enqueue(new MyCallback<OrderListResponse>() {
-
+ //      MyRetrofit.getApiService4().shangmishouchiOrderList(request).enqueue(new MyCallback<OrderListResponse>() {
             @Override
             public void onSuccess(OrderListResponse response) {
                 Log.d(TAG, "OrderListResponse==" + GsonUtil.GsonString(response));
@@ -293,8 +422,8 @@ public class LoginActivity extends BaseActivity {
     final private int REQUEST_PERMISSION_CODE = 20001;
 
     /*
-  校验蓝牙权限
- */
+        校验蓝牙权限
+    */
     private void checkBluetoothPermission() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

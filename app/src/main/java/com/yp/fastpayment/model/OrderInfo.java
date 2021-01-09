@@ -7,25 +7,21 @@ import java.util.List;
 
 public class OrderInfo {
     private String orderNo;
-
     private String serial;
-
     private Integer customerId;
     private Integer itemCount;
     private Integer printState;
-
+    private Integer reserveStatus;
+    private String levelName;
     private String customerName;
-
     private String customerPhone;
     private String note;
-
     private String mealCode;
-
     private List<MeshOrderItemVO> orderItemList;
-
     private Long realfee;
     private Long totalfee;
-
+    private int mealHourConfigId;
+    private String mealHourConfigName;
     private Date paytime;
 
     public Integer getItemCount() {
@@ -52,12 +48,29 @@ public class OrderInfo {
         this.totalfee = totalfee;
     }
 
+
     public Integer getPrintState() {
         return printState;
     }
 
     public void setPrintState(Integer printState) {
         this.printState = printState;
+    }
+
+    public Integer getReserveStatus() {
+        return reserveStatus;
+    }
+
+    public void setReserveStatus(Integer reserveStatus) {
+        this.reserveStatus = reserveStatus;
+    }
+
+    public String getLevelName() {
+        return levelName;
+    }
+
+    public void setLevelName(String levelName) {
+        this.levelName = levelName;
     }
 
     public String getOrderNo() {
@@ -128,6 +141,22 @@ public class OrderInfo {
         return mealCode;
     }
 
+    public int getMealHourConfigId() {
+        return mealHourConfigId;
+    }
+
+    public void setMealHourConfigId(int mealHourConfigId) {
+        this.mealHourConfigId = mealHourConfigId;
+    }
+
+    public String getMealHourConfigName() {
+        return mealHourConfigName;
+    }
+
+    public void setMealHourConfigName(String mealHourConfigName) {
+        this.mealHourConfigName = mealHourConfigName;
+    }
+
     public void setMealCode(String mealCode) {
         this.mealCode = mealCode;
     }
@@ -140,6 +169,8 @@ public class OrderInfo {
                 ", customerId=" + customerId +
                 ", itemCount=" + itemCount +
                 ", printState=" + printState +
+                ", reserveStatus=" + reserveStatus +
+                ", levelName='" + levelName + '\'' +
                 ", customerName='" + customerName + '\'' +
                 ", customerPhone='" + customerPhone + '\'' +
                 ", note='" + note + '\'' +
@@ -147,6 +178,8 @@ public class OrderInfo {
                 ", orderItemList=" + orderItemList +
                 ", realfee=" + realfee +
                 ", totalfee=" + totalfee +
+                ", mealHourConfigId=" + mealHourConfigId +
+                ", mealHourConfigName='" + mealHourConfigName + '\'' +
                 ", paytime=" + paytime +
                 '}';
     }

@@ -11,7 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ESCUtil {
+public class  ESCUtil {
 
     public static final byte ESC = 27;// 换码
     public static final byte FS = 28;// 文本分隔符
@@ -315,8 +315,8 @@ public class ESCUtil {
             byte[] center = ESCUtil.alignCenter();
 
             ////支付类型 0：二维码支付，1：人脸支付，2：实体卡支付，3：其他支付,  4:商户扫码支付
-
             byte[] Focus = ("取餐号：" + orderInfo.getSerial()).getBytes("gb2312");
+            byte[] levelName=("座位：" + orderInfo.getLevelName()).getBytes("gb2312");
             byte[] mealCode = ("取餐码：" + orderInfo.getMealCode()).getBytes("gb2312");
             byte[] boldOff = ESCUtil.boldOff();
             byte[] fontSize2Small = ESCUtil.fontSizeSetSmall(2);
@@ -333,7 +333,6 @@ public class ESCUtil {
             byte[] FocusOrderContent = ("手机号:" + orderInfo.getCustomerPhone()).getBytes("gb2312");
             boldOff = ESCUtil.boldOff();
             byte[] fontSize1Small = ESCUtil.fontSizeSetSmall(2);
-
             next2Line = ESCUtil.nextLine(2);
 
             List<byte[]> orderDetailList = new ArrayList<>();
@@ -355,7 +354,8 @@ public class ESCUtil {
             byte[] setOrderTime = ("下单时间：" + OrderInfoDao.simpleDateFormat.format(orderInfo.getPaytime()))
                     .getBytes("gb2312");
 
-            byte[] tips_1 = "请关注'云澎智能'小程序".getBytes("gb2312");
+           // byte[] tips_1 = "请关注'云澎智能'小程序".getBytes("gb2312");
+            byte[] kong=" ".getBytes("gb2312");
             nextLine = ESCUtil.nextLine(1);
             byte[] tips_2 = "".getBytes("gb2312");
             byte[] next4Line = ESCUtil.nextLine(4);
@@ -378,7 +378,9 @@ public class ESCUtil {
                     separator,
                     nextLine,center, fontSize1Big,title,
                     nextLine,center, fontSize2Big,branchName,
-                    nextLine,center, fontSize2Big,TextUtils.isEmpty(orderInfo.getSerial()) ? ESCUtil.nextLine(0) : Focus,
+                    //nextLine,center, fontSize2Big,TextUtils.isEmpty(orderInfo.getSerial()) ? ESCUtil.nextLine(0) : Focus,
+                    nextLine,center, fontSize2Big,TextUtils.isEmpty(orderInfo.getMealCode()) ? Focus:ESCUtil.nextLine(0) ,
+                    nextLine,center,fontSize1Big,TextUtils.isEmpty(orderInfo.getLevelName()) ? ESCUtil.nextLine(0):levelName,
                     nextLine,center, fontSize1Big,TextUtils.isEmpty(orderInfo.getNote()) ? ESCUtil.nextLine(0) : Note,
                     nextLine,center, fontSize1Big,orderSerinum,
                     nextLine,center, fontSize1Big,
@@ -396,10 +398,11 @@ public class ESCUtil {
                     nextLine,code ==  null ? ESCUtil.nextLine(0) : code,
                     nextLine,center, fontSize2Big,TextUtils.isEmpty(orderInfo.getMealCode()) ? ESCUtil.nextLine(0) : mealCode,
                     nextLine,fontSize1Big,TextUtils.isEmpty(orderInfo.getSerial()) ? nextLine : next2Line,center, setOrderTime,
-                    next2Line,fontSize1Big,center, tips_1,
+                    //next2Line,fontSize1Big,center, tips_1,
                     nextLine,separator,
-                    nextLine,separator,
-                    breakPartial};
+                    breakPartial,
+                    nextLine,center,fontSize1Big,kong,
+                    nextLine,center,fontSize1Big,kong,};
 
             byte[] result = ESCUtil.byteMerger(cmdBytes);
             byte[] result2 = ESCUtil.byteMerger(test);

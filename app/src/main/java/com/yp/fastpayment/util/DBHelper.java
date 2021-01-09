@@ -55,7 +55,11 @@ public class DBHelper extends SQLiteOpenHelper {
                 "totalfee integer," +
                 "itemCount integer," +
                 "note varchar," +
-                "mealCode varchar" +
+                "mealCode varchar," +
+                "mealHourConfigId integer,"+
+                "mealHourConfigName varchar,"+
+                "reserveStatus integer,"+
+                "levelName varchar"+
                 ")";
 
         db.execSQL(orderInfoSql);

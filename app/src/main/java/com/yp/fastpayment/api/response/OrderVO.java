@@ -2,27 +2,26 @@ package com.yp.fastpayment.api.response;
 
 import java.util.List;
 
+
+
+
 public class OrderVO {
     private String orderNo;
-
     private String serial;
-
     private Integer customerId;
     private Integer itemCount;
-
     private String customerName;
-
     private String customerPhone;
     private String note;
-
     private String mealCode;
-
     private List<MeshOrderItemVO> orderItemList;
-
     private Long realfee;
     private Long totalfee;
-
+    private int mealHourConfigId;
+    private String mealHourConfigName;
     private Long paytime;
+    private Integer reserveStatus;
+    private String levelName;
 
     public String getNote() {
         return note;
@@ -104,6 +103,23 @@ public class OrderVO {
         this.realfee = realfee;
     }
 
+    public int getMealHourConfigId() {
+        return mealHourConfigId;
+    }
+
+    public void setMealHourConfigId(int mealHourConfigId) {
+        this.mealHourConfigId = mealHourConfigId;
+    }
+
+
+    public String getMealHourConfigName() {
+        return mealHourConfigName;
+    }
+
+    public void setMealHourConfigName(String mealHourConfigName) {
+        this.mealHourConfigName = mealHourConfigName;
+    }
+
     public Long getPaytime() {
         return paytime;
     }
@@ -120,6 +136,22 @@ public class OrderVO {
         this.mealCode = mealCode;
     }
 
+    public Integer getReserveStatus() {
+        return reserveStatus;
+    }
+
+    public void setReserveStatus(Integer reserveStatus) {
+        this.reserveStatus = reserveStatus;
+    }
+
+    public String getLevelName() {
+        return levelName;
+    }
+
+    public void setLevelName(String levelName) {
+        this.levelName = levelName;
+    }
+
     @Override
     public String toString() {
         return "OrderVO{" +
@@ -134,7 +166,11 @@ public class OrderVO {
                 ", orderItemList=" + orderItemList +
                 ", realfee=" + realfee +
                 ", totalfee=" + totalfee +
+                ", mealHourConfigId=" + mealHourConfigId +
+                ", mealHourConfigName='" + mealHourConfigName + '\'' +
                 ", paytime=" + paytime +
+                ", reserveStatus=" + reserveStatus +
+                ", levelName='" + levelName + '\'' +
                 '}';
     }
 }
